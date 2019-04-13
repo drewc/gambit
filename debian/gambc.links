@@ -1,0 +1,17 @@
+usr/bin/gsi usr/bin/gsc-script
+usr/bin/gsi usr/bin/gsi-script
+usr/bin/gsi usr/bin/scheme-ieee-1178-1990
+usr/bin/gsi usr/bin/scheme-r4rs
+usr/bin/gsi usr/bin/scheme-srfi-0
+usr/bin/gsi usr/bin/six
+usr/bin/gsi usr/bin/six-script
+usr/share/man/man1/gsi.1 usr/share/man/man1/gsc-script.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/gsi-script.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-ieee-1178-1990.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-r4rs.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-r5rs.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-srfi-0.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/six.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/six-script.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/gsc.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/gambdoc.1

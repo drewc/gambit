@@ -1,0 +1,57 @@
+Source: gambc
+Section: devel
+Priority: optional
+Maintainer: Drew Crampsie <me@drewc.ca> 
+Build-Depends: debhelper, texinfo
+Standards-Version: 4.0.1
+Homepage: http://gambitscheme.org
+
+Package: gambc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         libgambit4 (= ${binary:Version}),
+         libgambit4-dev (= ${binary:Version})
+Recommends: gambc-doc
+Description: Gambit Scheme interpreter and compiler
+ The gambc package includes a Scheme interpreter and a Scheme compiler which
+ can be used to build standalone executables. The thread system is very
+ efficient and can support millions of concurrent processes.
+ .
+ The Gambit system conforms to the R4RS, R5RS and IEEE Scheme standards. The
+ full numeric tower is implemented, including: infinite precision integers
+ (bignums), rationals, inexact reals (floating point numbers), and complex
+ numbers.  Gambit supports a number of extensions to the standards.
+
+Package: libgambit4
+Section: libs
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Breaks: libgambc4
+Replaces: libgambc4
+Description: Shared libraries for the Gambit interpreter and compiler
+ The package includes .so, .c and .scm files, which are necessary to
+ run the Gambit interpreter and the Gambit compiler.
+
+Package: libgambit4-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends}, libgambit4 (= ${binary:Version})
+Multi-Arch: same
+Breaks: libgambc4-dev
+Replaces: libgambc4-dev
+Description: Header file and link for the Gambit shared library
+ The package includes gambit.h and the libgambit.so, libgambitgsi.so
+ and libgambitgsc.so links.
+
+Package: gambc-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Multi-Arch: foreign
+Description: documentation for the Gambit interpreter and compiler
+ The package includes info, .pdf, and text versions of the Gambit manual,
+ a 200+ page document containing a complete description of the interpreter
+ and compiler suite.  Also included are numerous examples, benchmark code,
+ and an implementation of syntax-case for Gambit.

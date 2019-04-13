@@ -1,0 +1,16 @@
+Document: gambc
+Title: Gambit Manual
+Author: Marc Feeley
+Abstract: This manual describes the Gambit
+ Scheme interpreter (gsi) and compiler (gsc).
+Section: Programming
+
+Format: Text
+Files: /usr/share/doc/gambc-doc/gambit.txt.gz
+
+Format: PDF
+Files: /usr/share/doc/gambc-doc/gambit.pdf
+
+Format: HTML
+Index: /usr/share/doc/gambc-doc/gambit.html
+Files: /usr/share/doc/gambc-doc/*.html

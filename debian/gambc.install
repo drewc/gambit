@@ -1,0 +1,6 @@
+usr/bin/gsi
+usr/bin/gsc
+usr/bin/gambdoc
+usr/bin/gambcomp-C
+usr/bin/gambcomp-js
+usr/share/emacs/site-lisp/gambit.el usr/share/emacs/site-lisp/gambc

@@ -1,0 +1,101 @@
+gambc (4.9.3-1ppa1) unstable; urgency=medium
+    
+    * New upstream release
+    * I am maintaining it. 
+    * It can be in a PPA, and may futz with previous versions
+
+ -- Drew Crampsie <me@drewc.ca>  Thu, 11 Apr 2019 22:42:42 -0700
+
+gambc (4.8.8-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add the missing Breaks. (Closes: #879917)
+
+ -- Adrian Bunk <bunk@debian.org>  Thu, 27 Sep 2018 22:26:49 +0300
+
+gambc (4.8.8-3) unstable; urgency=medium
+
+  * Some buildd/linting warning fixed
+  * Running tests serially (Closes: #886604, #501414)
+
+ -- Abdelhakim Qbaich <abdelhakim@qbaich.com>  Thu, 11 Jan 2018 20:58:03 -0500
+
+gambc (4.8.8-2) unstable; urgency=medium
+
+  * Fixed some lintian warnings/errors
+  * Repository moved to salsa
+  * Removed suggestion of deprecated package r5rs-doc
+  * libgambit4 replaces libgambc4 (Closes: #879917)
+
+ -- Abdelhakim Qbaich <abdelhakim@qbaich.com>  Sun, 31 Dec 2017 14:37:29 -0500
+
+gambc (4.8.8-1) experimental; urgency=medium
+
+  * New upstream release (Closes: #677709, #618273)
+  * Updated to debhelper Compatibility Level 10
+  * Updated to Standards-Version 4.0.1
+  * Updated to 3.0 (quilt) format
+  * Libraries renamed to libgambit4 and libgambit4-dev
+  * Proper copyright file
+  * Hardening in build options
+  * Updated watch file to take into account future versions
+  * Simplified the debian/ files
+
+ -- Abdelhakim Qbaich <abdelhakim@qbaich.com>  Mon, 02 Oct 2017 22:03:05 -0400
+
+gambc (4.2.8-1) unstable; urgency=low
+
+  * New upstream release
+  * Upstream has split shared lib into three; modify packaging to match
+  * Fix typo in gambc Suggests: r5rs-doc, move to gambc-doc (Closes: #449609)
+  * Split deb build into arch-dependent and arch-independent
+  * Simplify clean target's autoconf run commands
+  * Update watch file to revised tarball naming pattern (Closes: #450131)
+  * Update copyright
+  * Bootstrap gambit before modifying _gsc.c to reduce patch hackery
+  * libgambc4-dev becomes libdevel - optional
+  * Was FTBFS on GNU/kFreeBSD: missing OS detection (Closes: #414024)
+  * Was FTBFS on second attempt (Closes: #424288)
+  * debian/rules: Move "-Wl,-z,defs" from CFLAGS to LDFLAGS to avoid a lot
+    of irrelevant linker messages
+  * Fix debian-rules-ignores-make-clean-error
+  * Add XS-DM-Upload-Allowed field to control
+  * Update to Standards-Version 3.7.3
+  * Update to debhelper Compatibility Level 6
+  * Accept ubuntu patch: use update-alternatives when installing scheme-r5rs
+  * Update gsi.1: Copyright, available documentation, enhance description
+  * 4.2.6-1 was on mentors.debian.net for 10 days but never uploaded
+  * Fix bashism in debian/rules (Closes: #478383)
+  * 4.2.6-2 was on mentors.debian.net for 60 days but never uploaded
+  * Change /usr/lib/ installation dir from gambc4.0 to gambc4
+  * Run autoconf on autobuilders - simplify the configuration in
+    debian/rules and remove the lintian overrides for changes to
+    config.sub, config.guess, and configure
+  * Update to Standards Version 3.8.0
+  * Revise debian/copyright to reflect that the text of the Apache 2.0
+    License is now included in the Debian system distribution.
+  * Add Vcs-Svn and Vcs-Browser fields to debian/control
+  * CFLAGS now handled by dpkg-buildpackage
+  * autotools-dev dropped autoconf dependency, add autoconf to builddeps
+  * Update debian/rules to reflect current way of passing arch to configure
+  * Improve clean target: do a distclean in all dirs except gsc/
+
+ -- Kurt B. Kaiser <kbk@shore.net>  Mon, 07 Jul 2008 20:01:22 -0400
+
+gambc (4.0~b20-1) unstable; urgency=low
+
+  * New upstream release
+  * First Debian release, previous was Alioth only (Closes: #283299)
+  * Fix and update watch file
+  * Use configure option --enable-single-host for performance improvement
+  * Update Standards-Version and debhelper compatibility level
+  * Switch to building a shared library (libgambc4), and split package
+  * Split out the documentation for the extensive user manual into gambc-doc
+
+ -- Kurt B. Kaiser <kbk@shore.net>  Sun, 19 Nov 2006 17:52:10 -0500
+
+gambc (4.0.b17-1) unstable; urgency=low
+
+  * Initial release (Closes: #283299)
+
+ -- Kurt B. Kaiser <kbk@shore.net>  Sun, 12 Mar 2006 14:48:11 -0800

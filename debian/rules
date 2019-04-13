@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+# Verbosity
+#export DH_VERBOSE = 1
+
+# Build Flags
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--enable-single-host \
+		--enable-shared \
+    --enable-openssl \
+    --enable-default-runtime-options=f8,-8,t8 \
+    --enable-poll \
+		--enable-versioned-shared-libs \
+		--disable-absolute-shared-libs \
+		--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH)/gambit4
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
+		debian/libgambit4.links.in > debian/libgambit4.links
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
+		debian/libgambit4-dev.links.in > debian/libgambit4-dev.links
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l /usr/lib/$(DEB_HOST_MULTIARCH)/gambit4

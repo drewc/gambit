@@ -1,0 +1,86 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Gambit
+Upstream-Contact: Marc Feeley <feeley@iro.umontreal.ca>
+Source: https://github.com/gambit/gambit
+
+Files: *
+Copyright: 1994-2019, Marc Feeley
+License: Apache-2.0 or LGPL-2.1
+
+Files: lib/_num.scm
+Copyright: 2004-2017, Brad Lucier
+License: Apache-2.0 or LGPL-2.1
+
+Files: gsc/_t-univ-*.scm
+Copyright: 2012, Eric Thivierge
+License: Apache-2.0 or LGPL-2.1
+
+Files: gsc/_t-x86.scm
+Copyright: 2012, Eric Thivierge
+           2012, Vincent Foley
+License: Apache-2.0 or LGPL-2.1
+
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ .
+     http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the complete text of the Apache License 2.0 can
+ be found in "/usr/share/common-licenses/Apache-2.0"
+
+License: LGPL-2.1
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; version
+ 2.1 of the License.
+ .
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU Lesser General
+ Public License can be found in "/usr/share/common-licenses/LGPL-2.1".
+
+Files: lib/psyntax*
+Copyright: 1992-2002, Cadence Research Systems
+License: permissive
+ Permission to copy this software, in whole or in part, to use this
+ software for any lawful purpose, and to redistribute this software
+ is granted subject to the restriction that all copies made of this
+ software must include this copyright notice in full.  This software
+ is provided AS IS, with NO WARRANTY, EITHER EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY
+ OR FITNESS FOR ANY PARTICULAR PURPOSE.  IN NO EVENT SHALL THE
+ AUTHORS BE LIABLE FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES OF ANY
+ NATURE WHATSOEVER.
+
+Files: debian/*
+Copyright: 2019, Drew Crampsie <me@drewc.ca>
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".

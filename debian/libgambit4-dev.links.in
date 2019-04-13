@@ -1,0 +1,3 @@
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambit.so.4    usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambit.so
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsi.so.4 usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsi.so
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsc.so.4 usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsc.so
