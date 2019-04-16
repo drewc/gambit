@@ -2,7 +2,7 @@ Source: gambc
 Section: devel
 Priority: optional
 Maintainer: Drew Crampsie <me@drewc.ca> 
-Build-Depends: debhelper, texinfo
+Build-Depends: debhelper, texinfo, libssl-dev
 Standards-Version: 4.0.1
 Homepage: http://gambitscheme.org
 
@@ -26,7 +26,7 @@ Package: libgambit4
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libssl-dev
 Multi-Arch: same
 Breaks: libgambc4
 Replaces: libgambc4
