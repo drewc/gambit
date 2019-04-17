@@ -1,0 +1,730 @@
+#+TITLE: Gambit in .deb packages
+
+Gambit is out of date in Ubuntu, and I use it for production servers. A package
+is the way to go, with a PPA so it's automagically distributed.
+
+* The Launchpad PPA
+
+We've [[#starting_point][built a debian package]], but of course, it's not a valid ubuntu dist, so
+uploading fails with "Unable to find distroseries: unstable". We can't have that.
+
+As luck would have it, this should be simple. 
+
+** ~xenial~
+
+#+BEGIN_SRC shell
+$ lsb_release --codename
+Codename:       xenial
+#+END_SRC
+
+A branch, from the ~debian~ branch, named ~xenial~.
+
+#+BEGIN_SRC shell
+cd ~/src/apt/gambit/ && git checkout -b xenial debian
+#+END_SRC
+
+Make the change.
+
+#+BEGIN_SRC shell
+$ git diff
+diff --git a/debian/changelog b/debian/changelog
+index 4a87cb1..a8bdcb1 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,4 +1,4 @@
+-gambc (4.9.3-1ppa2) unstable; urgency=medium
++gambc (4.9.3-1ppa2) xenial; urgency=medium
+     
+     * New upstream release
+     * I am maintaining it. 
+#+END_SRC
+
+Commit.
+
+#+BEGIN_SRC shell
+cd ~/src/apt/gambit/ && git add debian/changelog && git commit -m "debian/changelog: Make it xenial"
+#+END_SRC
+
+Build the package.
+
+#+BEGIN_SRC shell
+cd ~/src/apt/gambit && mkdir ../xenial-build-area
+cd ~/src/apt/gambit/ && gbp buildpackage --git-export-dir=../xenial-build-area --git-pristine-tar --git-pristine-tar-commit --git-upstream-tag='v%(version)s' --git-debian-branch=xenial
+cp ~/src/apt/xenial-build-area/gambc_4.9.3.orig.tar.gz ~/src/apt/
+
+cd ~/src/apt/gambit && debuild -S -sa
+#+END_SRC
+
+Upload (~dput~) it.
+
+#+BEGIN_SRC shell
+cd ~/src/apt/ && dput ppa:drewc/gerbil ./gambc_4.9.3-1ppa2_source.changes
+#+END_SRC
+
+
+* The debian/ directory
+
+The debian/ directory is where all of debian's package development tools look
+for files.
+
+** control
+
+This file contains various values which dpkg, dselect, apt-get, apt-cache,
+aptitude, and other package management tools will use to manage the package. It
+is defined by the Debian Policy Manual, 5 "Control files and their fields". 
+  --[[https://www.debian.org/doc/manuals/maint-guide/dreq.en.html][Debian New Maintainers' Guide]]
+
+
+#+BEGIN_SRC conf :tangle "./debian/control"
+Source: gambc
+Section: devel
+Priority: optional
+Maintainer: Drew Crampsie <me@drewc.ca> 
+Build-Depends: debhelper, texinfo, libssl-dev
+Standards-Version: 4.0.1
+Homepage: http://gambitscheme.org
+
+Package: gambc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         libgambit4 (= ${binary:Version}),
+         libgambit4-dev (= ${binary:Version})
+Recommends: gambc-doc
+Description: Gambit Scheme interpreter and compiler
+ The gambc package includes a Scheme interpreter and a Scheme compiler which
+ can be used to build standalone executables. The thread system is very
+ efficient and can support millions of concurrent processes.
+ .
+ The Gambit system conforms to the R4RS, R5RS and IEEE Scheme standards. The
+ full numeric tower is implemented, including: infinite precision integers
+ (bignums), rationals, inexact reals (floating point numbers), and complex
+ numbers.  Gambit supports a number of extensions to the standards.
+
+Package: libgambit4
+Section: libs
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libssl-dev
+Multi-Arch: same
+Breaks: libgambc4
+Replaces: libgambc4
+Description: Shared libraries for the Gambit interpreter and compiler
+ The package includes .so, .c and .scm files, which are necessary to
+ run the Gambit interpreter and the Gambit compiler.
+
+Package: libgambit4-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends}, libgambit4 (= ${binary:Version})
+Multi-Arch: same
+Breaks: libgambc4-dev
+Replaces: libgambc4-dev
+Description: Header file and link for the Gambit shared library
+ The package includes gambit.h and the libgambit.so, libgambitgsi.so
+ and libgambitgsc.so links.
+
+Package: gambc-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Multi-Arch: foreign
+Description: documentation for the Gambit interpreter and compiler
+ The package includes info, .pdf, and text versions of the Gambit manual,
+ a 200+ page document containing a complete description of the interpreter
+ and compiler suite.  Also included are numerous examples, benchmark code,
+ and an implementation of syntax-case for Gambit.
+#+END_SRC
+** copyright
+   :PROPERTIES:
+   :CUSTOM_ID: debian_copyright
+   :END:
+
+
+#+BEGIN_SRC text :tangle "./debian/copyright"
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Gambit
+Upstream-Contact: Marc Feeley <feeley@iro.umontreal.ca>
+Source: https://github.com/gambit/gambit
+
+Files: *
+Copyright: 1994-2019, Marc Feeley
+License: Apache-2.0 or LGPL-2.1
+
+Files: lib/_num.scm
+Copyright: 2004-2017, Brad Lucier
+License: Apache-2.0 or LGPL-2.1
+
+Files: gsc/_t-univ-*.scm
+Copyright: 2012, Eric Thivierge
+License: Apache-2.0 or LGPL-2.1
+
+Files: gsc/_t-x86.scm
+Copyright: 2012, Eric Thivierge
+           2012, Vincent Foley
+License: Apache-2.0 or LGPL-2.1
+
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ .
+     http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the complete text of the Apache License 2.0 can
+ be found in "/usr/share/common-licenses/Apache-2.0"
+
+License: LGPL-2.1
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; version
+ 2.1 of the License.
+ .
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU Lesser General
+ Public License can be found in "/usr/share/common-licenses/LGPL-2.1".
+
+Files: lib/psyntax*
+Copyright: 1992-2002, Cadence Research Systems
+License: permissive
+ Permission to copy this software, in whole or in part, to use this
+ software for any lawful purpose, and to redistribute this software
+ is granted subject to the restriction that all copies made of this
+ software must include this copyright notice in full.  This software
+ is provided AS IS, with NO WARRANTY, EITHER EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY
+ OR FITNESS FOR ANY PARTICULAR PURPOSE.  IN NO EVENT SHALL THE
+ AUTHORS BE LIABLE FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES OF ANY
+ NATURE WHATSOEVER.
+
+Files: debian/*
+Copyright: 2019, Drew Crampsie <me@drewc.ca>
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+#+END_SRC
+** compat 
+#+BEGIN_SRC text :tangle "./debian/compat"
+10
+#+END_SRC
+** changelog
+#+BEGIN_SRC change-log :tangle "./debian/changelog"
+gambc (4.9.3-1ppa2) unstable; urgency=medium
+    
+    * New upstream release
+    * I am maintaining it. 
+    * It can be in a PPA, and may futz with previous versions
+
+ -- Drew Crampsie <me@drewc.ca>  Thu, 11 Apr 2019 22:42:42 -0700
+
+gambc (4.8.8-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add the missing Breaks. (Closes: #879917)
+
+ -- Adrian Bunk <bunk@debian.org>  Thu, 27 Sep 2018 22:26:49 +0300
+
+gambc (4.8.8-3) unstable; urgency=medium
+
+  * Some buildd/linting warning fixed
+  * Running tests serially (Closes: #886604, #501414)
+
+ -- Abdelhakim Qbaich <abdelhakim@qbaich.com>  Thu, 11 Jan 2018 20:58:03 -0500
+
+gambc (4.8.8-2) unstable; urgency=medium
+
+  * Fixed some lintian warnings/errors
+  * Repository moved to salsa
+  * Removed suggestion of deprecated package r5rs-doc
+  * libgambit4 replaces libgambc4 (Closes: #879917)
+
+ -- Abdelhakim Qbaich <abdelhakim@qbaich.com>  Sun, 31 Dec 2017 14:37:29 -0500
+
+gambc (4.8.8-1) experimental; urgency=medium
+
+  * New upstream release (Closes: #677709, #618273)
+  * Updated to debhelper Compatibility Level 10
+  * Updated to Standards-Version 4.0.1
+  * Updated to 3.0 (quilt) format
+  * Libraries renamed to libgambit4 and libgambit4-dev
+  * Proper copyright file
+  * Hardening in build options
+  * Updated watch file to take into account future versions
+  * Simplified the debian/ files
+
+ -- Abdelhakim Qbaich <abdelhakim@qbaich.com>  Mon, 02 Oct 2017 22:03:05 -0400
+
+gambc (4.2.8-1) unstable; urgency=low
+
+  * New upstream release
+  * Upstream has split shared lib into three; modify packaging to match
+  * Fix typo in gambc Suggests: r5rs-doc, move to gambc-doc (Closes: #449609)
+  * Split deb build into arch-dependent and arch-independent
+  * Simplify clean target's autoconf run commands
+  * Update watch file to revised tarball naming pattern (Closes: #450131)
+  * Update copyright
+  * Bootstrap gambit before modifying _gsc.c to reduce patch hackery
+  * libgambc4-dev becomes libdevel - optional
+  * Was FTBFS on GNU/kFreeBSD: missing OS detection (Closes: #414024)
+  * Was FTBFS on second attempt (Closes: #424288)
+  * debian/rules: Move "-Wl,-z,defs" from CFLAGS to LDFLAGS to avoid a lot
+    of irrelevant linker messages
+  * Fix debian-rules-ignores-make-clean-error
+  * Add XS-DM-Upload-Allowed field to control
+  * Update to Standards-Version 3.7.3
+  * Update to debhelper Compatibility Level 6
+  * Accept ubuntu patch: use update-alternatives when installing scheme-r5rs
+  * Update gsi.1: Copyright, available documentation, enhance description
+  * 4.2.6-1 was on mentors.debian.net for 10 days but never uploaded
+  * Fix bashism in debian/rules (Closes: #478383)
+  * 4.2.6-2 was on mentors.debian.net for 60 days but never uploaded
+  * Change /usr/lib/ installation dir from gambc4.0 to gambc4
+  * Run autoconf on autobuilders - simplify the configuration in
+    debian/rules and remove the lintian overrides for changes to
+    config.sub, config.guess, and configure
+  * Update to Standards Version 3.8.0
+  * Revise debian/copyright to reflect that the text of the Apache 2.0
+    License is now included in the Debian system distribution.
+  * Add Vcs-Svn and Vcs-Browser fields to debian/control
+  * CFLAGS now handled by dpkg-buildpackage
+  * autotools-dev dropped autoconf dependency, add autoconf to builddeps
+  * Update debian/rules to reflect current way of passing arch to configure
+  * Improve clean target: do a distclean in all dirs except gsc/
+
+ -- Kurt B. Kaiser <kbk@shore.net>  Mon, 07 Jul 2008 20:01:22 -0400
+
+gambc (4.0~b20-1) unstable; urgency=low
+
+  * New upstream release
+  * First Debian release, previous was Alioth only (Closes: #283299)
+  * Fix and update watch file
+  * Use configure option --enable-single-host for performance improvement
+  * Update Standards-Version and debhelper compatibility level
+  * Switch to building a shared library (libgambc4), and split package
+  * Split out the documentation for the extensive user manual into gambc-doc
+
+ -- Kurt B. Kaiser <kbk@shore.net>  Sun, 19 Nov 2006 17:52:10 -0500
+
+gambc (4.0.b17-1) unstable; urgency=low
+
+  * Initial release (Closes: #283299)
+
+ -- Kurt B. Kaiser <kbk@shore.net>  Sun, 12 Mar 2006 14:48:11 -0800
+
+#+END_SRC
+** rules 
+
+#+BEGIN_SRC makefile-gmake :shebang "#!/usr/bin/make -f" :tangle "./debian/rules"
+
+# Verbosity
+#export DH_VERBOSE = 1
+
+# Build Flags
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--enable-single-host \
+		--enable-shared \
+    --enable-openssl \
+    --enable-default-runtime-options=f8,-8,t8 \
+    --enable-poll \
+		--enable-versioned-shared-libs \
+		--disable-absolute-shared-libs \
+		--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH)/gambit4
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
+		debian/libgambit4.links.in > debian/libgambit4.links
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
+		debian/libgambit4-dev.links.in > debian/libgambit4-dev.links
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l /usr/lib/$(DEB_HOST_MULTIARCH)/gambit4
+#+END_SRC
+** gambc, the compiler/interpreter package
+*** gambc.install
+ #+BEGIN_SRC text :tangle "./debian/gambc.install"
+usr/bin/gsi
+usr/bin/gsc
+usr/bin/gambdoc
+usr/bin/gambcomp-C
+usr/bin/gambcomp-js
+usr/share/emacs/site-lisp/gambit.el usr/share/emacs/site-lisp/gambc
+ #+END_SRC
+
+*** gambc.docs
+ #+BEGIN_SRC text :tangle "./debian/gambc.docs"
+README
+ #+END_SRC
+
+*** gambc.manpages
+
+ #+BEGIN_SRC text :tangle "./debian/gambc.manpages"
+doc/gsi.1
+ #+END_SRC
+
+*** gambc.links
+ #+BEGIN_SRC text :tangle "./debian/gambc.links"
+usr/bin/gsi usr/bin/gsc-script
+usr/bin/gsi usr/bin/gsi-script
+usr/bin/gsi usr/bin/scheme-ieee-1178-1990
+usr/bin/gsi usr/bin/scheme-r4rs
+usr/bin/gsi usr/bin/scheme-srfi-0
+usr/bin/gsi usr/bin/six
+usr/bin/gsi usr/bin/six-script
+usr/share/man/man1/gsi.1 usr/share/man/man1/gsc-script.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/gsi-script.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-ieee-1178-1990.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-r4rs.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-r5rs.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/scheme-srfi-0.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/six.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/six-script.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/gsc.1
+usr/share/man/man1/gsi.1 usr/share/man/man1/gambdoc.1
+ #+END_SRC
+
+*** gambc.postinst
+
+ Apparently ~scheme-r5rs~ is an alternative, as we update that
+
+ #+BEGIN_SRC shell :shebang "#!/bin/sh" :tangle "./debian/gambc.postinst"
+
+# postinst script for gambc
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see https://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+    configure)
+        update-alternatives \
+            --install /usr/bin/scheme-r5rs scheme-r5rs /usr/bin/gsi 20 \
+            --slave /usr/share/man/man1/scheme-r5rs.1.gz \
+                scheme-r5rs.1.gz \
+                /usr/share/man/man1/gsi.1.gz
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0
+
+ #+END_SRC
+
+*** gambc.prerm
+
+ Apparently ~scheme-r5rs~ is an alternative, so must be de-alternized. 
+
+ #+BEGIN_SRC shell :shebang "#!/bin/sh" :tangle "./debian/gambc.prerm"
+# prerm script for gambc
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <prerm> `remove'
+#        * <old-prerm> `upgrade' <new-version>
+#        * <new-prerm> `failed-upgrade' <old-version>
+#        * <conflictor's-prerm> `remove' `in-favour' <package> <new-version>
+#        * <deconfigured's-prerm> `deconfigure' `in-favour'
+#          <package-being-installed> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see https://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        update-alternatives --remove scheme-r5rs /usr/bin/gsi
+    ;;
+
+    failed-upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0
+ #+END_SRC
+
+** gambc-doc, the manual is so very nice to have. 
+
+   
+*** gambc-doc.docs
+ #+BEGIN_SRC text :tangle "./debian/gambc-doc.docs"
+doc/gambit.html
+doc/gambit.pdf
+doc/gambit.txt
+ #+END_SRC
+
+*** gambc-doc.doc-base
+
+   "If your package has documentation other than manual and info pages, you
+   should use the doc-base file to register it, so the user can find it with e.g.
+   dhelp(1), dwww(1), or doccentral(1).
+
+   This usually includes HTML, PS and PDF files, shipped in
+   /usr/share/doc/packagename/."
+
+  Yay! that's almost precisely what we are putting in this package.
+
+ #+BEGIN_SRC text :tangle "./debian/gambc-doc.doc-base"
+Document: gambc
+Title: Gambit Manual
+Author: Marc Feeley
+Abstract: This manual describes the Gambit
+ Scheme interpreter (gsi) and compiler (gsc).
+Section: Programming
+
+Format: Text
+Files: /usr/share/doc/gambc-doc/gambit.txt.gz
+
+Format: PDF
+Files: /usr/share/doc/gambc-doc/gambit.pdf
+
+Format: HTML
+Index: /usr/share/doc/gambc-doc/gambit.html
+Files: /usr/share/doc/gambc-doc/*.html
+ #+END_SRC
+
+*** gambc-doc.examples
+"The dh_installexamples(1) command installs files and directories listed in this
+file as example files."
+
+ #+BEGIN_SRC text :tangle "./debian/gambc-doc.examples"
+examples/*
+ #+END_SRC
+
+*** gambc-doc.info
+If your package has info pages, you should install them using dh_installinfo(1)
+by listing them in a package.info file.
+ #+BEGIN_SRC text :tangle "./debian/gambc-doc.info"
+doc/gambit.info*
+ #+END_SRC
+
+** libgambit4.install
+
+#+BEGIN_SRC text :tangle "./debian/libgambit4.install"
+usr/lib/*/*/*.so.*
+usr/lib/*/*/*.scm
+usr/lib/*/*/*.c
+#+END_SRC
+
+** libgambit4.symbols
+
+
+#+BEGIN_QUOTE
+Packaging of a library is not easy for a novice maintainer and should be
+avoided. Having said it, if your package has libraries, you should have
+debian/package.symbols files. See [[https://www.debian.org/doc/manuals/maint-guide/advanced.en.html#librarysymbols][Section A.2, “Managing
+debian/package.symbols”.]]
+#+END_QUOTE
+
+
+Well shoot. I'm a novice, this is my first modern package, it is has a library.
+Ah well, lets make symbols.
+
+As it turns out, when we [[#starting_point][make the package]], it generates a symbols file.
+
+So, to start with, we use that.
+
+#+BEGIN_SRC shell
+cd ~/src/apt/gambit/ && dpkg-deb -R ../build-area/libgambit4_4.9.3-1_amd64.deb ../libgambit4-tmp
+cd ~/src/apt/gambit/ && cp ../libgambit4-tmp/DEBIAN/symbols debian/libgambit4.symbols
+#+END_SRC
+
+** libgambit4.links.in
+#+BEGIN_SRC text :tangle "~/src/apt/gambit/debian/libgambit4.links.in"
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambit.so.4    usr/lib/@DEB_HOST_MULTIARCH@/libgambit.so.4
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsi.so.4 usr/lib/@DEB_HOST_MULTIARCH@/libgambitgsi.so.4
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsc.so.4 usr/lib/@DEB_HOST_MULTIARCH@/libgambitgsc.so.4
+#+END_SRC
+
+  *
+
+** libgambit4-dev.install
+
+#+BEGIN_SRC text :tangle "~/src/apt/gambit/debian/libgambit4-dev.install"
+usr/include
+#+END_SRC
+
+** libgambit4-dev.links.in
+#+BEGIN_SRC fundamental :tangle "~/src/apt/gambit/debian/libgambit4-dev.links.in"
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambit.so.4    usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambit.so
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsi.so.4 usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsi.so
+  usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsc.so.4 usr/lib/@DEB_HOST_MULTIARCH@/gambit4/libgambitgsc.so
+#+END_SRC
+
+
+
+** patches/
+
+"The newer 3.0 (quilt) source format stores patches in debian/patches/* files
+using the quilt command."
+
+
+Ok, so lets have some patches!
+
+*** info-document-missing-dir-section.patch
+
+ #+BEGIN_SRC diff :tangle "~/src/apt/gambit/debian/patches/info-document-missing-dir-section.patch"
+Added section for info page
+
+--- a/doc/gambit.txi
++++ b/doc/gambit.txi
+@@ -13,6 +13,7 @@
+ 
+ @ifinfo
+ @format
++INFO-DIR-SECTION Programming
+ START-INFO-DIR-ENTRY
+ ,* Gambit: (gambit).		A portable implementation of Scheme.
+ ,* gsi: (gambit) interpreter.	Gambit interpreter.
+ #+END_SRC
+
+
+** source/format
+
+In the debian/source/format file, there should be a single line indicating the
+desired format for the source package (check dpkg-source(1) for an exhaustive
+list).
+
+#+BEGIN_SRC text :tangle "~/src/apt/gambit/debian/source/format"
+3.0 (quilt)
+#+END_SRC
+
+
+
+* The Starting point: Make Packages ${binary:Version}
+  :PROPERTIES:
+  :CUSTOM_ID: starting_point
+  :END:
+
+I've been running debian for about 25 years, but have not made a package in
+about that long. As luck would have it, they (like everything these days) are
+git repos. Building Debian Packages with [[http://honk.sigxcpu.org/projects/git-buildpackage/manual-html/gbp.html][git-buildpackage]] to the rescue.
+
+Debian also has an intro: https://wiki.debian.org/PackagingWithGit.
+
+#+BEGIN_SRC shell
+sudo apt-get install git-buildpackage debhelper texinfo dh-make
+
+mkdir -p ~/src/apt 
+
+cd ~/src/apt && wget http://launchpadlibrarian.net/404114436/git-buildpackage_0.9.13_all.deb
+sudo dpkg -i git-buildpackage_0.9.13_all.deb 
+sudo apt-get install -f
+sudo dpkg -i git-buildpackage_0.9.13_all.deb 
+
+#+END_SRC
+
+
+http://honk.sigxcpu.org/projects/git-buildpackage/manual-html/gbp.import.upstream-git.html
+
+#+BEGIN_SRC shell
+_DEB_BRANCH=debian
+_GAMBIT_VERSION=v4.9.3
+cd ~/src/apt && git clone --no-checkout -o upstream git@github.com:drewc/gambit.git
+cd ~/src/apt/gambit && git checkout -b $_DEB_BRANCH $_GAMBIT_VERSION
+cd ~/src/apt/gambit && mkdir debian
+cd ~/src/apt/gambit && mkdir debian/patches
+cd ~/src/apt/gambit && mkdir debian/source
+
+cd ~/src/apt/gambit/ && git add debian/*
+cd ~/src/apt/gambit/ && git commit -m "Import debian/"
+
+cd ~/src/apt/gambit && mkdir ../ppa-build-area
+
+cd ~/src/apt/gambit/ && gbp buildpackage --git-export-dir=../ppa-build-area --git-pristine-tar --git-pristine-tar-commit --git-upstream-tag='v%(version)s' --git-debian-branch=$_DEB_BRANCH
+#+END_SRC
+
+#+END_SRC
+
+Ok, so we now have a branch ~_DEB_BRANCH~ that is based off the start point
+~_GAMBIT_VERSION~. The docs now say to add the Debian™ packaging. Since that is
+somewhat the entire point, and I don't quite know what I'm doing, we'll cheat.
+
+https://www.debian.org/doc/manuals/maint-guide/dreq.en.html
+
+** Steal existing ~gambc~ 
+
+#+BEGIN_SRC shell
+cd ~/src/apt/ && gbp import-dscs --debsnap gambc
+#+END_SRC
+
+
+* Legalese
+  :PROPERTIES:
+  :COPYING: t
+  :END:
+
+  Copyright © Drew Crampsie <me@drewc.ca>
+
+  Code is licensed according to where it is tangled and what [[#debian_copyright][debian/copyright]]
+  has to say.
+
